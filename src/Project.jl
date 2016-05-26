@@ -48,4 +48,38 @@ function add(package_name::AbstractString)
   end
 end
 
+function set_version(new_version_string)
+  project_directory = pwd()
+  cd(project_directory)
+  if (isfile("./project.json"))
+    project_file = open("./project.json")
+    project_settings = JSON.parse(readall(project_file))
+    project_settings["version"] = new_version_string
+    project_file = open("./project.json","w")
+    json_string = JSON.json(project_settings)
+    write(project_file,json_string)
+  end
+end
+
+function install_dependencies(force_reinstall=false)
+  project_directory = pwd()
+  cd(project_directory)
+  if (isfile("./project.json"))
+    project_file = open("./project.json")
+    project_settings = JSON.parse(readall(project_file))
+    for dep in project_settings["dependencies"]
+      if dep[1] == "pkg"
+        if (get(Pkg.installed(), dep[2], 0) == 0)
+          Pkg.add(dep[2])
+        elseif force_reinstall
+          Pkg.rm(dep[2])
+          Pkg.add(dep[2])
+        end
+      end
+    end
+  else
+    print_with_color(:red,"ERROR: There is no project.json file in your current directory.\n")
+  end
+end
+
 end # module
