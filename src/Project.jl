@@ -1,11 +1,11 @@
 module Project
 
 import JSON
-# package code goes here
 
 export new,add
 
 function new(project_name::AbstractString,version::AbstractString,project_directory::AbstractString="pwd")
+  original_pwd = pwd()
   if (project_directory == "pwd")
     project_directory = pwd()
   elseif project_directory[1] == '.'
@@ -23,6 +23,7 @@ function new(project_name::AbstractString,version::AbstractString,project_direct
   project_file = open("./project.json", "w")
   write(project_file,json_string)
   close(project_file)
+  cd(original_pwd)
   print("Your project was created successfully.")
 end
 
